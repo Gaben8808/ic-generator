@@ -2,44 +2,71 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-    // ... a te változatlan configod ...
+    apiKey: "AIzaSyAsthGIMXvc-pFXfc63tGEclGg5V6qCT0s",
+    authDomain: "ic-generator-93915.firebaseapp.com",
+    projectId: "ic-generator-93915",
+    storageBucket: "ic-generator-93915.firebasestorage.app",
+    messagingSenderId: "571045375663",
+    appId: "1:571045375663:web:591a7f51b5921dac90ae5a"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-enableIndexedDbPersistence(db).catch(() => {});
+enableIndexedDbPersistence(db).catch(() => console.warn("Offline mód korlátozott"));
 
-// === 5. PONT: HAPTIKUS VISSZAJELZÉS (REZGÉS) ===
+// === HAPTIKUS VISSZAJELZÉS (Biztonságos hívás) ===
 const haptic = (type = 'light') => {
     if (!("vibrate" in navigator)) return;
-    if (type === 'light') navigator.vibrate(30);           // Rövid érintés
-    if (type === 'success') navigator.vibrate([40, 30, 40]); // Kettős rezdülés
-    if (type === 'error') navigator.vibrate([100, 50, 100]); // Hosszabb hiba-rezgés
+    try {
+        if (type === 'light') navigator.vibrate(30);
+        if (type === 'success') navigator.vibrate([40, 30, 40]);
+        if (type === 'error') navigator.vibrate([100, 50, 100]);
+    } catch (e) {}
 };
 
-// === 1. PONT: IC FORMÁZÓ SEGÉDFÜGGVÉNY ===
-// Nyers 13 karakterből csinál: A2.C013-1370.2.00 formátumot
+// === IC FORMÁZÓ (Hibajavított, nem fagy le üres adatnál) ===
 const formatIC = (raw) => {
-    const c = raw.replace(/[^A-Z0-9]/gi, '').toUpperCase();
-    if (c.length !== 13) return c; // Ha nem 13, nem formázzuk (hibakezeléshez kell)
+    if (!raw) return ''; 
+    const c = String(raw).replace(/[^A-Z0-9]/gi, '').toUpperCase();
+    if (c.length !== 13) return c; 
     return `${c.slice(0,2)}.${c.slice(2,6)}-${c.slice(6,10)}.${c.slice(10,11)}.${c.slice(11,13)}`;
 };
 
-// ... Téma kezelő kódod változatlan ...
+// === SÖTÉT MÓD LOGIKA ===
+const themeToggle = document.getElementById('themeToggle');
+if (themeToggle) {
+    const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    if (currentTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        themeToggle.textContent = '☀️';
+    }
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        let theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+        themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+        localStorage.setItem('theme', theme);
+    });
+}
 
 let icDatabase = [], currentGenType = 'ESS', editIcId = null;
 
+// === ADATBÁZIS FIGYELÉS ===
 onSnapshot(collection(db, 'ic_numbers'), (snap) => {
     icDatabase = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderAdminList();
     updateGenSelect();
+}, (error) => {
+    console.error("Firebase lekérési hiba: ", error);
 });
 
-// UI Kezelés
+// === UI KEZELÉS ===
 window.showTab = (name) => {
     haptic('light');
-    ['generator', 'admin', 'info'].forEach(t => document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== name));
-    document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.toggle('active', b.onclick.toString().includes(name)));
+    ['generator', 'admin', 'info'].forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        if(el) el.classList.toggle('hidden', t !== name);
+    });
+    document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.toggle('active', b.getAttribute('onclick').includes(name)));
 };
 
 window.switchType = (type) => {
@@ -51,20 +78,21 @@ window.switchType = (type) => {
 
 const updateGenSelect = () => {
     const sel = document.getElementById('genSelect');
+    if (!sel) return;
     const filtered = icDatabase.filter(ic => ic.type === currentGenType);
-    // Megjelenítéskor formázzuk az IC-t
     sel.innerHTML = filtered.length ? '<option value="">-- Válassz --</option>' + 
         filtered.map(ic => `<option value="${ic.code}">${formatIC(ic.code)}</option>`).join('') : '<option>Nincs adat</option>';
 };
 
-// Generátor
+// === GENERÁTOR ===
 window.generateData = () => {
     const code = document.getElementById('genSelect').value;
     const amountStr = document.getElementById('genAmount').value;
     const amount = parseInt(amountStr);
 
-    if (!code || !amountStr) { haptic('error'); return showToast("Adatok hiányoznak!"); }
-    if (amount > 5000) { haptic('error'); return showToast("Max 5000 lehet!"); }
+    if (!code || !amountStr) { haptic('error'); return showToast("Kérlek tölts ki minden mezőt!"); }
+    if (amount > 5000) { haptic('error'); return showToast("A mennyiség max 5000 lehet!"); }
+    if (amount <= 0) { haptic('error'); return showToast("Érvénytelen mennyiség!"); }
 
     haptic('success');
     const cleanIC = code.replace(/[^a-zA-Z0-9]/g, '');
@@ -75,13 +103,19 @@ window.generateData = () => {
     document.getElementById('q1-large').innerHTML = '';
     document.getElementById('q2-large').innerHTML = '';
 
-    new QRCode(document.getElementById("q1-large"), { text: r11, width: 300, height: 300, correctLevel: QRCode.CorrectLevel.H });
-    new QRCode(document.getElementById("q2-large"), { text: `${cleanIC}${paddedAmount}${r10}`, width: 300, height: 300, correctLevel: QRCode.CorrectLevel.H });
+    new QRCode(document.getElementById("q1-large"), { text: r11, width: 250, height: 250, correctLevel: QRCode.CorrectLevel.H });
+    new QRCode(document.getElementById("q2-large"), { text: `${cleanIC}${paddedAmount}${r10}`, width: 250, height: 250, correctLevel: QRCode.CorrectLevel.H });
     
     document.getElementById('q1-text').innerHTML = `<strong style="color:#000">${r11}</strong>`;
     document.getElementById('q2-text').innerHTML = `<strong style="color:#000">${formatIC(cleanIC)}${paddedAmount}${r10}</strong>`;
 
     document.getElementById('qrFullscreen').classList.remove('hidden');
+};
+
+window.clearGenerator = () => {
+    haptic('light');
+    document.getElementById('genAmount').value = '';
+    document.getElementById('genSelect').value = '';
 };
 
 window.closeQr = () => {
@@ -91,9 +125,11 @@ window.closeQr = () => {
     document.getElementById('genSelect').value = '';
 };
 
-// Admin felület frissítése formázott listával
+// === ADMIN ===
 const renderAdminList = () => {
-    document.getElementById('adminList').innerHTML = icDatabase.sort((a,b) => a.code.localeCompare(b.code)).map(ic => `
+    const list = document.getElementById('adminList');
+    if (!list) return;
+    list.innerHTML = icDatabase.sort((a,b) => (a.code || "").localeCompare(b.code || "")).map(ic => `
         <div class="list-group-item d-flex justify-content-between align-items-center">
             <div><span class="badge me-2 ${ic.type==='ESS'?'bg-primary':'bg-warning'}">${ic.type}</span><b>${formatIC(ic.code)}</b></div>
             <button class="btn btn-sm btn-light" onclick="openIcModal('${ic.id}')">✏️</button>
@@ -110,21 +146,17 @@ window.openIcModal = (id = null) => {
     document.getElementById('icModal').classList.add('open');
 };
 
-// === ÚJMENTÉS LOGIKA: VALIDÁLÁS ÉS DUPLIKÁCIÓ SZŰRÉS ===
 window.saveIc = async () => {
     let code = document.getElementById('imCode').value.trim().toUpperCase();
     const type = document.getElementById('imType').value;
     
-    // Tisztítás (csak betű/szám maradjon az ellenőrzéshez)
     const cleanCode = code.replace(/[^A-Z0-9]/gi, '');
 
-    // 1. Hossz ellenőrzés
     if (cleanCode.length !== 13) {
         haptic('error');
         return showToast("Az IC száma pontosan 13 karakter kell legyen!");
     }
 
-    // 2. Duplikáció ellenőrzés
     const isDuplicate = icDatabase.some(ic => ic.code === cleanCode && ic.id !== editIcId);
     if (isDuplicate) {
         haptic('error');
@@ -132,13 +164,17 @@ window.saveIc = async () => {
     }
 
     haptic('success');
-    // Csak a tiszta 13 karaktert mentjük el az adatbázisba, a formázást a megjelenítő végzi
-    editIcId ? 
-        await updateDoc(doc(db, 'ic_numbers', editIcId), {code: cleanCode, type}) : 
-        await addDoc(collection(db, 'ic_numbers'), {code: cleanCode, type});
-    
-    closeModal('icModal');
-    showToast("Adatbázis frissítve! ✓");
+    try {
+        editIcId ? 
+            await updateDoc(doc(db, 'ic_numbers', editIcId), {code: cleanCode, type}) : 
+            await addDoc(collection(db, 'ic_numbers'), {code: cleanCode, type});
+        
+        closeModal('icModal');
+        showToast("Adatbázis frissítve! ✓");
+    } catch (error) {
+        showToast("Hiba történt a mentéskor!");
+        console.error(error);
+    }
 };
 
 window.deleteIc = async () => {
@@ -155,6 +191,14 @@ window.closeModal = (id) => {
 };
 
 const showToast = (m) => {
-    document.getElementById('toastMsg').textContent = m;
-    new bootstrap.Toast(document.getElementById('liveToast')).show();
+    const msgEl = document.getElementById('toastMsg');
+    const toastEl = document.getElementById('liveToast');
+    if (msgEl && toastEl) {
+        msgEl.textContent = m;
+        new bootstrap.Toast(toastEl).show();
+    }
 };
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+}
