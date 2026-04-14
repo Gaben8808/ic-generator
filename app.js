@@ -14,6 +14,29 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 enableIndexedDbPersistence(db).catch(() => {});
 
+// === SÖTÉT MÓD LOGIKA BEÉPÍTÉSE ===
+const themeToggle = document.getElementById('themeToggle');
+// Ellenőrzi, hogy van-e mentett beállítás, vagy a telefon alapból sötét módon van-e
+const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+if (currentTheme === 'dark') {
+    document.body.classList.add('dark-mode');
+    themeToggle.textContent = '☀️';
+}
+
+themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    let theme = 'light';
+    if (document.body.classList.contains('dark-mode')) {
+        theme = 'dark';
+        themeToggle.textContent = '☀️';
+    } else {
+        themeToggle.textContent = '🌙';
+    }
+    localStorage.setItem('theme', theme);
+});
+// ===================================
+
 let icDatabase = [], currentGenType = 'ESS', editIcId = null;
 
 onSnapshot(collection(db, 'ic_numbers'), (snap) => {
@@ -52,12 +75,13 @@ window.generateData = () => {
     const r10 = Math.floor(Math.random() * 9e9 + 1e9).toString();
 
     const res = document.getElementById('resultArea');
+    // Sötét módban is olvasható QR kód színek beállítása: a könyvtár világos alapon sötétet generál
     res.innerHTML = `<div class="qr-item"><div id="q1"></div><div class="qr-label">${r11}</div></div>
                      <div class="qr-item"><div id="q2"></div><div class="qr-label">${cleanIC}${paddedAmount}${r10}</div></div>`;
     res.classList.remove('hidden');
 
-    new QRCode(document.getElementById("q1"), { text: r11, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.H });
-    new QRCode(document.getElementById("q2"), { text: `${cleanIC}${paddedAmount}${r10}`, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.H });
+    new QRCode(document.getElementById("q1"), { text: r11, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.H });
+    new QRCode(document.getElementById("q2"), { text: `${cleanIC}${paddedAmount}${r10}`, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.H });
     
     showToast("Kész! ✓");
     res.scrollIntoView({ behavior: 'smooth' });
@@ -68,8 +92,8 @@ window.clearGenerator = () => { document.getElementById('genAmount').value = '';
 // Admin
 const renderAdminList = () => {
     document.getElementById('adminList').innerHTML = icDatabase.sort((a,b) => a.code.localeCompare(b.code)).map(ic => `
-        <div class="list-group-item d-flex justify-content-between align-items-center py-3">
-            <div><span class="badge rounded-pill me-2 ${ic.type==='ESS'?'bg-primary':'bg-warning'}">${ic.type}</span><b>${ic.code}</b></div>
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+            <div><span class="badge me-2 ${ic.type==='ESS'?'bg-primary':'bg-warning'}">${ic.type}</span><b>${ic.code}</b></div>
             <button class="btn btn-sm btn-light" onclick="openIcModal('${ic.id}')">✏️</button>
         </div>`).join('') || '<p class="text-center py-4 small text-muted">Üres lista.</p>';
 };
