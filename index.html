@@ -1,256 +1,111 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>AddIC Generátor</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<meta name="theme-color" content="#1a4b8c">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.json">
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-  }
-</script>
-
-<style>
-:root {
-  --bg:#f0f3f8; --sur:#fff; --sur2:#e8edf5; --bord:#d4dae6;
-  --tx:#18202e; --tx2:#66707e;
-  --blue:#1a4b8c; --blue2:#3474d4; --blue-l:#dce8f8;
-  --green:#256640; --green-l:#d2eddb;
-  --ora:#c96a0a; --ora-l:#fdecd8;
-  --red:#b52020; --red-l:#fce8e8;
-  --r:13px; --sh:0 2px 14px rgba(0,0,0,.07);
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:15px;}
-
-/* ── HEADER ── */
-header{background:var(--blue);color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.22);}
-.h-title h1{font-family:'DM Serif Display',serif;font-size:1.15rem;font-weight:400;}
-.h-title p{font-size:.7rem;opacity:.72;margin-top:1px;}
-
-/* ── BOTTOM NAV ── */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--sur);border-top:1px solid var(--bord);display:flex;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,.08);}
-.bottom-nav button{flex:1;padding:9px 4px 10px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:.62rem;font-weight:500;color:var(--tx2);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .18s;}
-.bottom-nav button .nav-ico{font-size:1.25rem;line-height:1;}
-.bottom-nav button.active{color:var(--blue);}
-
-main{padding:14px 13px;max-width:800px;margin:0 auto;padding-bottom:76px;}
-
-.card{background:var(--sur);border-radius:var(--r);border:1px solid var(--bord);padding:15px;margin-bottom:12px;box-shadow:var(--sh);}
-.card-title{font-family:'DM Serif Display',serif;font-size:1rem;margin-bottom:12px;}
-
-input,select,textarea{font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--tx);background:var(--bg);border:1.5px solid var(--bord);border-radius:9px;padding:10px 12px;width:100%;outline:none;min-height:44px;}
-label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bottom:6px;}
-.fr{margin-bottom:14px;}
-
-.btn{padding:10px 16px;border-radius:9px;border:none;font-weight:600;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px;}
-.btn-primary{background:var(--blue);color:#fff;}
-.btn-sec{background:var(--sur2);color:var(--tx);border:1px solid var(--bord);}
-.btn-del{background:var(--red-l);color:var(--red);border:1px solid #e8b0b0;}
-
-.pill-nav{display:flex;background:var(--sur2);border-radius:10px;padding:4px;margin-bottom:15px;}
-.pill-nav button{flex:1;background:transparent;border:none;padding:8px;border-radius:8px;font-weight:600;color:var(--tx2);}
-.pill-nav button.active{background:var(--sur);color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.1);}
-
-.ic-item{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;background:var(--bg);border-radius:10px;border:1px solid var(--bord);margin-bottom:6px;}
-.ic-type{font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:20px;text-transform:uppercase;}
-.type-ess{background:var(--blue-l);color:var(--blue);}
-.type-wss{background:var(--ora-l);color:var(--ora);}
-
-.result-box{background:#18202e;color:#50e3c2;font-family:monospace;padding:15px;border-radius:10px;font-size:.9rem;min-height:100px;white-space:pre-wrap;margin-top:10px;display:none;}
-.result-box.show{display:block;}
-
-/* ── MODAL ── */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.46);z-index:200;align-items:flex-end;justify-content:center;}
-.overlay.open{display:flex;}
-.modal{background:#fff;border-radius:18px 18px 0 0;padding:20px 18px 28px;width:100%;max-height:92vh;overflow-y:auto;}
-
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--tx);color:#fff;padding:10px 20px;border-radius:28px;z-index:999;transition:transform .3s;visibility:hidden;}
-.toast.show{transform:translateX(-50%) translateY(0);visibility:visible;}
-
-.hidden{display:none!important;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IC Generator</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff5f00">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
-<header>
-  <div class="h-title">
-    <h1>⚙️ AddIC Generátor</h1>
-    <p>Adatbázis szinkronizálva</p>
-  </div>
-</header>
-
-<main>
-  <div id="tab-generator">
-    <div class="card">
-      <div class="pill-nav" id="typePills">
-        <button class="active" onclick="switchType('ESS')">ESS</button>
-        <button onclick="switchType('WSS')">WSS</button>
-      </div>
-      <div class="fr">
-        <label>IC szám kiválasztása:</label>
-        <select id="genSelect"><option value="">Betöltés...</option></select>
-      </div>
-      <div class="fr">
-        <label>Mennyiség (max 5000):</label>
-        <input type="number" id="genAmount" placeholder="Darab...">
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button class="btn btn-primary" style="flex:2;" onclick="generateData()">Generálás</button>
-        <button class="btn btn-sec" style="flex:1;" onclick="clearGenerator()">Törlés</button>
-      </div>
-      <div id="resultArea" class="result-box"></div>
+<nav class="navbar navbar-expand-lg navbar-light fixed-top shadow">
+    <div class="container-fluid justify-content-center">
+        <div class="navbar-center-title">IC Generator</div>
     </div>
-  </div>
+</nav>
 
-  <div id="tab-admin" class="hidden">
-    <div class="card">
-      <div class="card-title">🗂️ IC Kezelő</div>
-      <div id="adminList"></div>
-      <button class="btn btn-sec" style="width:100%;margin-top:10px;border-style:dashed;" onclick="openIcModal()">+ Új IC rögzítése</button>
+<main class="container">
+    <div id="tab-generator">
+        <div class="card shadow-sm">
+            <div class="pill-nav">
+                <button class="active" onclick="switchType('ESS')">ESS</button>
+                <button onclick="switchType('WSS')">WSS</button>
+            </div>
+            <div class="mb-3">
+                <label class="form-label small fw-bold">IC kiválasztása</label>
+                <select id="genSelect" class="form-select form-select-lg"></select>
+            </div>
+            <div class="mb-4">
+                <label class="form-label small fw-bold">Mennyiség</label>
+                <input type="number" id="genAmount" class="form-control form-control-lg" placeholder="Pl. 1500">
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-lg w-100" style="background:#9d29b2;border:0" onclick="generateData()">Generálás</button>
+                <button class="btn btn-light btn-lg" onclick="clearGenerator()">🗑</button>
+            </div>
+            <div id="resultArea" class="qr-container hidden"></div>
+        </div>
     </div>
-  </div>
+
+    <div id="tab-admin" class="hidden">
+        <div class="card shadow-sm">
+            <h5 class="fw-bold mb-3">IC Adatbázis</h5>
+            <div id="adminList" class="list-group list-group-flush"></div>
+            <button class="btn btn-outline-primary mt-4 w-100" style="border-style:dashed" onclick="openIcModal()">+ Új IC rögzítése</button>
+        </div>
+    </div>
+
+    <div id="tab-info" class="hidden">
+        <div class="card shadow-sm">
+            <div class="info-main-title"><span>📱</span> Telepítés (PWA)</div>
+            <div class="info-outer-card">
+                <div class="info-card-header"><span>🍏</span> iPhone (Safari)</div>
+                <ol class="info-list">
+                    <li>Nyisd meg <b>Safari</b>-ban.</li>
+                    <li>Koppints a <b>Megosztás</b> ikonra.</li>
+                    <li>Válaszd a <b>Főképernyőhöz adás</b>-t.</li>
+                </ol>
+            </div>
+            <div class="info-outer-card">
+                <div class="info-card-header"><span>🤖</span> Android (Chrome)</div>
+                <ol class="info-list">
+                    <li>Nyisd meg <b>Chrome</b>-ban.</li>
+                    <li>Koppints a <b>Menü</b> (3 pötty) ikonra.</li>
+                    <li>Válaszd a <b>Telepítés</b> gombot.</li>
+                </ol>
+            </div>
+            <div class="info-card-blue mb-3">
+                <div class="info-card-header text-primary"><span>🔄</span> Frissítés</div>
+                <p class="info-text-sm m-0">Az app offline is működik. Frissítés esetén a képernyő alján gomb jelenik meg.</p>
+            </div>
+            <div class="mb-4">
+                <div class="info-card-header text-dark"><span>📧</span> Kapcsolat</div>
+                <a href="mailto:gabor.2.kovacs@aumovio.com" class="contact-link">📩 gabor.2.kovacs@aumovio.com</a>
+            </div>
+            <div class="version-footer">Kovács Gábor · v1.1.2</div>
+            <button class="btn-info-ok" onclick="showTab('generator')">Rendben</button>
+        </div>
+    </div>
 </main>
 
 <nav class="bottom-nav">
-  <button class="active" onclick="showTab('generator')"><span class="nav-ico">⚡</span>Generátor</button>
-  <button onclick="showTab('admin')"><span class="nav-ico">🗂️</span>Admin</button>
+    <button class="active" onclick="showTab('generator')"><span class="nav-ico">⚡</span>Generátor</button>
+    <button onclick="showTab('admin')"><span class="nav-ico">🗂️</span>Admin</button>
+    <button onclick="showTab('info')"><span class="nav-ico">ℹ️</span>Infó</button>
 </nav>
 
 <div class="overlay" id="icModal">
-  <div class="modal">
-    <div class="modal-title" id="imTitle">IC hozzáadása</div>
-    <div class="fr"><label>Terület</label><select id="imType"><option value="ESS">ESS</option><option value="WSS">WSS</option></select></div>
-    <div class="fr"><label>IC Száma</label><input type="text" id="imCode"></div>
-    <div style="display:flex; gap:8px;">
-      <button class="btn btn-del" id="imDel" onclick="deleteIc()" style="display:none;">Törlés</button>
-      <button class="btn btn-sec" style="flex:1" onclick="closeModal('icModal')">Mégsem</button>
-      <button class="btn btn-primary" style="flex:1" onclick="saveIc()">Mentés</button>
+    <div class="modal-custom">
+        <h4 id="imTitle" class="fw-bold mb-4">IC Kezelés</h4>
+        <div class="mb-3"><label class="form-label">Terület</label><select id="imType" class="form-select"><option value="ESS">ESS</option><option value="WSS">WSS</option></select></div>
+        <div class="mb-4"><label class="form-label">IC Száma</label><input type="text" id="imCode" class="form-control"></div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-danger" id="imDel" onclick="deleteIc()" style="display:none">Törlés</button>
+            <button class="btn btn-light flex-grow-1" onclick="closeModal('icModal')">Mégsem</button>
+            <button class="btn btn-primary flex-grow-1" onclick="saveIc()">Mentés</button>
+        </div>
     </div>
-  </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast-container"><div id="liveToast" class="toast align-items-center text-white bg-dark border-0" role="alert"><div class="d-flex"><div class="toast-body" id="toastMsg"></div></div></div></div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, enableIndexedDbPersistence } 
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-// A te egyedi konfigurációd
-const firebaseConfig = {
-  apiKey: "AIzaSyAsthGIMXvc-pFXfc63tGEclGg5V6qCT0s",
-  authDomain: "ic-generator-93915.firebaseapp.com",
-  projectId: "ic-generator-93915",
-  storageBucket: "ic-generator-93915.firebasestorage.app",
-  messagingSenderId: "571045375663",
-  appId: "1:571045375663:web:591a7f51b5921dac90ae5a"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// Offline támogatás
-enableIndexedDbPersistence(db).catch(() => console.warn("Offline mód nem elérhető"));
-
-let icDatabase = [];
-let currentGenType = 'ESS';
-let editIcId = null;
-
-// Valós idejű figyelés
-onSnapshot(collection(db, 'ic_numbers'), (snap) => {
-  icDatabase = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  icDatabase.sort((a,b) => a.type.localeCompare(b.type) || a.code.localeCompare(b.code));
-  renderAdminList();
-  updateGenSelect();
-});
-
-window.showTab = (name) => {
-  document.getElementById('tab-generator').classList.toggle('hidden', name !== 'generator');
-  document.getElementById('tab-admin').classList.toggle('hidden', name !== 'admin');
-  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.toggle('active', b.getAttribute('onclick').includes(name)));
-};
-
-window.switchType = (type) => {
-  currentGenType = type;
-  document.querySelectorAll('#typePills button').forEach(b => b.classList.toggle('active', b.textContent === type));
-  updateGenSelect();
-};
-
-function updateGenSelect() {
-  const sel = document.getElementById('genSelect');
-  const filtered = icDatabase.filter(ic => ic.type === currentGenType);
-  sel.innerHTML = filtered.length ? '<option value="">-- Válassz --</option>' + filtered.map(ic => `<option value="${ic.code}">${ic.code}</option>`).join('') : '<option>Nincs adat</option>';
-}
-
-window.generateData = () => {
-  const code = document.getElementById('genSelect').value;
-  const amount = parseInt(document.getElementById('genAmount').value);
-  if(!code || !amount) return toast("Minden mezőt tölts ki!");
-  
-  let out = `[ GENERÁLVA ]\nIC: ${code}\nMennyiség: ${amount}\n\n`;
-  for(let i=1; i<=Math.min(amount, 50); i++) out += `${code}-TX-${i}\n`;
-  if(amount > 50) out += `... (további ${amount-50} sor elrejtve)`;
-  
-  const res = document.getElementById('resultArea');
-  res.textContent = out; res.classList.add('show');
-  toast("Kész! ✓");
-};
-
-window.clearGenerator = () => {
-  document.getElementById('genAmount').value = '';
-  document.getElementById('resultArea').classList.remove('show');
-};
-
-function renderAdminList() {
-  const list = document.getElementById('adminList');
-  list.innerHTML = icDatabase.map(ic => `
-    <div class="ic-item">
-      <div><span class="ic-type ${ic.type==='ESS'?'type-ess':'type-wss'}">${ic.type}</span> <b>${ic.code}</b></div>
-      <button class="btn btn-sec btn-sm" onclick="openIcModal('${ic.id}')">✏️</button>
-    </div>
-  `).join('') || '<p>Nincs rögzített adat.</p>';
-}
-
-window.openIcModal = (id = null) => {
-  editIcId = id;
-  const ic = id ? icDatabase.find(x => x.id === id) : null;
-  document.getElementById('imCode').value = ic ? ic.code : '';
-  document.getElementById('imType').value = ic ? ic.type : 'ESS';
-  document.getElementById('imDel').style.display = id ? 'block' : 'none';
-  document.getElementById('icModal').classList.add('open');
-};
-
-window.saveIc = async () => {
-  const code = document.getElementById('imCode').value.trim();
-  const type = document.getElementById('imType').value;
-  if(!code) return;
-  editIcId ? await updateDoc(doc(db, 'ic_numbers', editIcId), {code, type}) : await addDoc(collection(db, 'ic_numbers'), {code, type});
-  closeModal('icModal');
-  toast("Mentve! ✓");
-};
-
-window.deleteIc = async () => {
-  if(confirm("Törlöd?") && editIcId) {
-    await deleteDoc(doc(db, 'ic_numbers', editIcId));
-    closeModal('icModal');
-    toast("Törölve 🗑️");
-  }
-};
-
-window.closeModal = (id) => document.getElementById(id).classList.remove('open');
-
-function toast(m) {
-  const t = document.getElementById('toast');
-  t.textContent = m; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>
