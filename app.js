@@ -98,7 +98,9 @@ window.generateData = () => {
 window.closeQr = () => {
     document.getElementById('qrFullscreen').classList.add('hidden');
     document.getElementById('genAmount').value = '';
+    document.getElementById('genSelect').value = ''; // Ez a sor felel az IC választó nullázásáért
 };
+
 
 // Admin
 const renderAdminList = () => {
