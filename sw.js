@@ -1,8 +1,13 @@
 const CACHE_NAME = 'addic-v1';
 const ASSETS = [
-  '/index.html',
-  '/manifest.json',
-  'https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap'
+  './',
+  './index.html',
+  './style.css',  // Ez fontos!
+  './app.js',     // Ez is!
+  './manifest.json',
+  'https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap',
+  'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
+  'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'
 ];
 
 // Telepítéskor elmentjük a fájlokat
