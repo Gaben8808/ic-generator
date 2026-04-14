@@ -1,6 +1,6 @@
 {
   "name": "IC Generátor",
-  "short_name": "AddIC",
+  "short_name": "IC Gen",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#f0f3f8",
