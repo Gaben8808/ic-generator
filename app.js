@@ -63,31 +63,42 @@ const updateGenSelect = () => {
     sel.innerHTML = filtered.length ? '<option value="">-- Válassz --</option>' + filtered.map(ic => `<option value="${ic.code}">${ic.code}</option>`).join('') : '<option>Nincs adat</option>';
 };
 
-// Generátor
+// Generátor (Új, teljes képernyős logika)
 window.generateData = () => {
     const code = document.getElementById('genSelect').value;
     const amountStr = document.getElementById('genAmount').value;
+    const amount = parseInt(amountStr);
+    
     if (!code || !amountStr) return showToast("Adatok hiányoznak!");
+    if (amount > 5000) return showToast("A mennyiség maximum 5000 lehet!");
+    if (amount <= 0) return showToast("Érvénytelen mennyiség!");
 
     const cleanIC = code.replace(/[^a-zA-Z0-9]/g, '');
     const paddedAmount = amountStr.padStart(7, '0');
     const r11 = Math.floor(Math.random() * 9e10 + 1e10).toString();
     const r10 = Math.floor(Math.random() * 9e9 + 1e9).toString();
 
-    const res = document.getElementById('resultArea');
-    // Sötét módban is olvasható QR kód színek beállítása: a könyvtár világos alapon sötétet generál
-    res.innerHTML = `<div class="qr-item"><div id="q1"></div><div class="qr-label">${r11}</div></div>
-                     <div class="qr-item"><div id="q2"></div><div class="qr-label">${cleanIC}${paddedAmount}${r10}</div></div>`;
-    res.classList.remove('hidden');
+    // Előző QR kódok törlése
+    document.getElementById('q1-large').innerHTML = '';
+    document.getElementById('q2-large').innerHTML = '';
 
-    new QRCode(document.getElementById("q1"), { text: r11, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.H });
-    new QRCode(document.getElementById("q2"), { text: `${cleanIC}${paddedAmount}${r10}`, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.H });
+    // Új kódok legenerálása hatalmas méretben (a CSS majd igazítja)
+    new QRCode(document.getElementById("q1-large"), { text: r11, width: 300, height: 300, correctLevel: QRCode.CorrectLevel.H });
+    new QRCode(document.getElementById("q2-large"), { text: `${cleanIC}${paddedAmount}${r10}`, width: 300, height: 300, correctLevel: QRCode.CorrectLevel.H });
     
-    showToast("Kész! ✓");
-    res.scrollIntoView({ behavior: 'smooth' });
+    // Szövegek beállítása a QR kódok alá (sötét módban is sötét színnel a fehér doboz miatt)
+    document.getElementById('q1-text').innerHTML = `<strong style="color:#000">${r11}</strong>`;
+    document.getElementById('q2-text').innerHTML = `<strong style="color:#000">${cleanIC}${paddedAmount}${r10}</strong>`;
+
+    // Teljes képernyős ablak megjelenítése
+    document.getElementById('qrFullscreen').classList.remove('hidden');
 };
 
-window.clearGenerator = () => { document.getElementById('genAmount').value = ''; document.getElementById('resultArea').classList.add('hidden'); };
+// Teljes képernyős ablak bezárása és form ürítése
+window.closeQr = () => {
+    document.getElementById('qrFullscreen').classList.add('hidden');
+    document.getElementById('genAmount').value = '';
+};
 
 // Admin
 const renderAdminList = () => {
