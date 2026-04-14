@@ -1,0 +1,16 @@
+{
+  "name": "IC Generátor",
+  "short_name": "AddIC",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#f0f3f8",
+  "theme_color": "#1a4b8c",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/9355/9355673.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
