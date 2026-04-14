@@ -13,32 +13,36 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <meta name="description" content="AddIC - Ipari IC és QR kód generátor">
-<meta name="author" content="Kovács Gábor">
+    <meta name="author" content="Kovács Gábor">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="AddIC">
-<link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AddIC">
+    <link rel="apple-touch-icon" href="icon-192.png">
 
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://gaben8808.github.io/ic-generator/">
-<meta property="og:title" content="AddIC Generator">
-<meta property="og:description" content="Ipari IC és QR kód generátor raktározási feladatokhoz.">
-<meta property="og:image" content="icon-512.png">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gaben8808.github.io/ic-generator/">
+    <meta property="og:title" content="AddIC Generator">
+    <meta property="og:description" content="Ipari IC és QR kód generátor raktározási feladatokhoz.">
+    <meta property="og:image" content="icon-512.png">
 
-<link rel="icon" type="image/png" href="icon-192.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light fixed-top shadow">
-    <div class="container-fluid justify-content-center">
-        <div class="navbar-center-title">IC Generator</div>
+<nav class="navbar">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <a href="javascript:history.back()" class="nav-btn text-decoration-none">⬅️</a>
+        
+        <div class="navbar-title text-white fw-bold">IC Generator</div>
+        
+        <button id="themeToggle" class="nav-btn border-0 bg-transparent">🌙</button>
     </div>
 </nav>
 
-<main class="container">
+<main class="container mt-4">
     <div id="tab-generator">
-        <div class="card shadow-sm">
+        <div class="minimal-card">
             <div class="pill-nav">
                 <button class="active" onclick="switchType('ESS')">ESS</button>
                 <button onclick="switchType('WSS')">WSS</button>
@@ -60,7 +64,7 @@
     </div>
 
     <div id="tab-admin" class="hidden">
-        <div class="card shadow-sm">
+        <div class="minimal-card">
             <h5 class="fw-bold mb-3">IC Adatbázis</h5>
             <div id="adminList" class="list-group list-group-flush"></div>
             <button class="btn btn-outline-primary mt-4 w-100" style="border-style:dashed" onclick="openIcModal()">+ Új IC rögzítése</button>
@@ -68,34 +72,26 @@
     </div>
 
     <div id="tab-info" class="hidden">
-        <div class="card shadow-sm">
-            <div class="info-main-title"><span>📱</span> Telepítés (PWA)</div>
-            <div class="info-outer-card">
-                <div class="info-card-header"><span>🍏</span> iPhone (Safari)</div>
-                <ol class="info-list">
-                    <li>Nyisd meg <b>Safari</b>-ban.</li>
-                    <li>Koppints a <b>Megosztás</b> ikonra.</li>
-                    <li>Válaszd a <b>Főképernyőhöz adás</b>-t.</li>
-                </ol>
+        <div class="minimal-card">
+            <h5 class="fw-bold mb-4">📱 PWA Telepítés</h5>
+            <div class="info-block">
+                <h6>🍏 iPhone (Safari)</h6>
+                <p class="small text-muted mb-0">Megosztás ikon ➞ Főképernyőhöz adás ➞ Hozzáadás</p>
             </div>
-            <div class="info-outer-card">
-                <div class="info-card-header"><span>🤖</span> Android (Chrome)</div>
-                <ol class="info-list">
-                    <li>Nyisd meg <b>Chrome</b>-ban.</li>
-                    <li>Koppints a <b>Menü</b> (3 pötty) ikonra.</li>
-                    <li>Válaszd a <b>Telepítés</b> gombot.</li>
-                </ol>
+            <div class="info-block mt-3">
+                <h6>🤖 Android (Chrome)</h6>
+                <p class="small text-muted mb-0">Menü (3 pötty) ➞ Hozzáadás a kezdőképernyőhöz</p>
             </div>
-            <div class="info-card-blue mb-3">
-                <div class="info-card-header text-primary"><span>🔄</span> Frissítés</div>
-                <p class="info-text-sm m-0">Az app offline is működik. Frissítés esetén a képernyő alján gomb jelenik meg.</p>
+            <div class="info-block highlight mt-3 p-3 rounded" style="background: rgba(157, 41, 178, 0.05);">
+                <h6 class="text-primary mb-1">🔄 Frissítés</h6>
+                <p class="small text-muted mb-0">Az app offline is működik. Frissítés a képernyő alján megjelenő gombbal.</p>
             </div>
-            <div class="mb-4">
-                <div class="info-card-header text-dark"><span>📧</span> Kapcsolat</div>
-                <a href="mailto:gabor.2.kovacs@aumovio.com" class="contact-link">📩 gabor.2.kovacs@aumovio.com</a>
+            <div class="info-block mt-4">
+                <h6>📧 Kapcsolat</h6>
+                <a href="mailto:gabor.2.kovacs@aumovio.com" class="contact-link text-decoration-none fw-bold" style="color: #9d29b2;">gabor.2.kovacs@aumovio.com</a>
             </div>
-            <div class="version-footer">Kovács Gábor · v1.1.2</div>
-            <button class="btn-info-ok" onclick="showTab('generator')">Rendben</button>
+            <div class="version-footer text-center mt-4 small text-muted">Kovács Gábor · v1.1.2</div>
+            <button class="btn btn-primary w-100 mt-3" style="background:#1a4b8c;border:0" onclick="showTab('generator')">Rendben</button>
         </div>
     </div>
 </main>
@@ -114,7 +110,7 @@
         <div class="d-flex gap-2">
             <button class="btn btn-danger" id="imDel" onclick="deleteIc()" style="display:none">Törlés</button>
             <button class="btn btn-light flex-grow-1" onclick="closeModal('icModal')">Mégsem</button>
-            <button class="btn btn-primary flex-grow-1" onclick="saveIc()">Mentés</button>
+            <button class="btn btn-primary flex-grow-1" style="background:#9d29b2;border:0" onclick="saveIc()">Mentés</button>
         </div>
     </div>
 </div>
