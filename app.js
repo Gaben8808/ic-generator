@@ -2,40 +2,30 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAsthGIMXvc-pFXfc63tGEclGg5V6qCT0s",
-    authDomain: "ic-generator-93915.firebaseapp.com",
-    projectId: "ic-generator-93915",
-    storageBucket: "ic-generator-93915.firebasestorage.app",
-    messagingSenderId: "571045375663",
-    appId: "1:571045375663:web:591a7f51b5921dac90ae5a"
+    // ... a te változatlan configod ...
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 enableIndexedDbPersistence(db).catch(() => {});
 
-// === SÖTÉT MÓD LOGIKA BEÉPÍTÉSE ===
-const themeToggle = document.getElementById('themeToggle');
-// Ellenőrzi, hogy van-e mentett beállítás, vagy a telefon alapból sötét módon van-e
-const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+// === 5. PONT: HAPTIKUS VISSZAJELZÉS (REZGÉS) ===
+const haptic = (type = 'light') => {
+    if (!("vibrate" in navigator)) return;
+    if (type === 'light') navigator.vibrate(30);           // Rövid érintés
+    if (type === 'success') navigator.vibrate([40, 30, 40]); // Kettős rezdülés
+    if (type === 'error') navigator.vibrate([100, 50, 100]); // Hosszabb hiba-rezgés
+};
 
-if (currentTheme === 'dark') {
-    document.body.classList.add('dark-mode');
-    themeToggle.textContent = '☀️';
-}
+// === 1. PONT: IC FORMÁZÓ SEGÉDFÜGGVÉNY ===
+// Nyers 13 karakterből csinál: A2.C013-1370.2.00 formátumot
+const formatIC = (raw) => {
+    const c = raw.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+    if (c.length !== 13) return c; // Ha nem 13, nem formázzuk (hibakezeléshez kell)
+    return `${c.slice(0,2)}.${c.slice(2,6)}-${c.slice(6,10)}.${c.slice(10,11)}.${c.slice(11,13)}`;
+};
 
-themeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
-    let theme = 'light';
-    if (document.body.classList.contains('dark-mode')) {
-        theme = 'dark';
-        themeToggle.textContent = '☀️';
-    } else {
-        themeToggle.textContent = '🌙';
-    }
-    localStorage.setItem('theme', theme);
-});
-// ===================================
+// ... Téma kezelő kódod változatlan ...
 
 let icDatabase = [], currentGenType = 'ESS', editIcId = null;
 
@@ -47,11 +37,13 @@ onSnapshot(collection(db, 'ic_numbers'), (snap) => {
 
 // UI Kezelés
 window.showTab = (name) => {
+    haptic('light');
     ['generator', 'admin', 'info'].forEach(t => document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== name));
     document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.toggle('active', b.onclick.toString().includes(name)));
 };
 
 window.switchType = (type) => {
+    haptic('light');
     currentGenType = type;
     document.querySelectorAll('.pill-nav button').forEach(b => b.classList.toggle('active', b.textContent === type));
     updateGenSelect();
@@ -60,58 +52,56 @@ window.switchType = (type) => {
 const updateGenSelect = () => {
     const sel = document.getElementById('genSelect');
     const filtered = icDatabase.filter(ic => ic.type === currentGenType);
-    sel.innerHTML = filtered.length ? '<option value="">-- Válassz --</option>' + filtered.map(ic => `<option value="${ic.code}">${ic.code}</option>`).join('') : '<option>Nincs adat</option>';
+    // Megjelenítéskor formázzuk az IC-t
+    sel.innerHTML = filtered.length ? '<option value="">-- Válassz --</option>' + 
+        filtered.map(ic => `<option value="${ic.code}">${formatIC(ic.code)}</option>`).join('') : '<option>Nincs adat</option>';
 };
 
-// Generátor (Új, teljes képernyős logika)
+// Generátor
 window.generateData = () => {
     const code = document.getElementById('genSelect').value;
     const amountStr = document.getElementById('genAmount').value;
     const amount = parseInt(amountStr);
-    
-    if (!code || !amountStr) return showToast("Adatok hiányoznak!");
-    if (amount > 5000) return showToast("A mennyiség maximum 5000 lehet!");
-    if (amount <= 0) return showToast("Érvénytelen mennyiség!");
 
+    if (!code || !amountStr) { haptic('error'); return showToast("Adatok hiányoznak!"); }
+    if (amount > 5000) { haptic('error'); return showToast("Max 5000 lehet!"); }
+
+    haptic('success');
     const cleanIC = code.replace(/[^a-zA-Z0-9]/g, '');
     const paddedAmount = amountStr.padStart(7, '0');
     const r11 = Math.floor(Math.random() * 9e10 + 1e10).toString();
     const r10 = Math.floor(Math.random() * 9e9 + 1e9).toString();
 
-    // Előző QR kódok törlése
     document.getElementById('q1-large').innerHTML = '';
     document.getElementById('q2-large').innerHTML = '';
 
-    // Új kódok legenerálása hatalmas méretben (a CSS majd igazítja)
     new QRCode(document.getElementById("q1-large"), { text: r11, width: 300, height: 300, correctLevel: QRCode.CorrectLevel.H });
     new QRCode(document.getElementById("q2-large"), { text: `${cleanIC}${paddedAmount}${r10}`, width: 300, height: 300, correctLevel: QRCode.CorrectLevel.H });
     
-    // Szövegek beállítása a QR kódok alá (sötét módban is sötét színnel a fehér doboz miatt)
     document.getElementById('q1-text').innerHTML = `<strong style="color:#000">${r11}</strong>`;
-    document.getElementById('q2-text').innerHTML = `<strong style="color:#000">${cleanIC}${paddedAmount}${r10}</strong>`;
+    document.getElementById('q2-text').innerHTML = `<strong style="color:#000">${formatIC(cleanIC)}${paddedAmount}${r10}</strong>`;
 
-    // Teljes képernyős ablak megjelenítése
     document.getElementById('qrFullscreen').classList.remove('hidden');
 };
 
-// Teljes képernyős ablak bezárása és form ürítése
 window.closeQr = () => {
+    haptic('light');
     document.getElementById('qrFullscreen').classList.add('hidden');
     document.getElementById('genAmount').value = '';
-    document.getElementById('genSelect').value = ''; // Ez a sor felel az IC választó nullázásáért
+    document.getElementById('genSelect').value = '';
 };
 
-
-// Admin
+// Admin felület frissítése formázott listával
 const renderAdminList = () => {
     document.getElementById('adminList').innerHTML = icDatabase.sort((a,b) => a.code.localeCompare(b.code)).map(ic => `
         <div class="list-group-item d-flex justify-content-between align-items-center">
-            <div><span class="badge me-2 ${ic.type==='ESS'?'bg-primary':'bg-warning'}">${ic.type}</span><b>${ic.code}</b></div>
+            <div><span class="badge me-2 ${ic.type==='ESS'?'bg-primary':'bg-warning'}">${ic.type}</span><b>${formatIC(ic.code)}</b></div>
             <button class="btn btn-sm btn-light" onclick="openIcModal('${ic.id}')">✏️</button>
         </div>`).join('') || '<p class="text-center py-4 small text-muted">Üres lista.</p>';
 };
 
 window.openIcModal = (id = null) => {
+    haptic('light');
     editIcId = id;
     const ic = id ? icDatabase.find(x => x.id === id) : null;
     document.getElementById('imCode').value = ic?.code || '';
@@ -120,20 +110,51 @@ window.openIcModal = (id = null) => {
     document.getElementById('icModal').classList.add('open');
 };
 
+// === ÚJMENTÉS LOGIKA: VALIDÁLÁS ÉS DUPLIKÁCIÓ SZŰRÉS ===
 window.saveIc = async () => {
-    const code = document.getElementById('imCode').value.trim().toUpperCase(), type = document.getElementById('imType').value;
-    if (!code) return;
-    editIcId ? await updateDoc(doc(db, 'ic_numbers', editIcId), {code, type}) : await addDoc(collection(db, 'ic_numbers'), {code, type});
+    let code = document.getElementById('imCode').value.trim().toUpperCase();
+    const type = document.getElementById('imType').value;
+    
+    // Tisztítás (csak betű/szám maradjon az ellenőrzéshez)
+    const cleanCode = code.replace(/[^A-Z0-9]/gi, '');
+
+    // 1. Hossz ellenőrzés
+    if (cleanCode.length !== 13) {
+        haptic('error');
+        return showToast("Az IC száma pontosan 13 karakter kell legyen!");
+    }
+
+    // 2. Duplikáció ellenőrzés
+    const isDuplicate = icDatabase.some(ic => ic.code === cleanCode && ic.id !== editIcId);
+    if (isDuplicate) {
+        haptic('error');
+        return showToast("Ez az IC már szerepel az adatbázisban!");
+    }
+
+    haptic('success');
+    // Csak a tiszta 13 karaktert mentjük el az adatbázisba, a formázást a megjelenítő végzi
+    editIcId ? 
+        await updateDoc(doc(db, 'ic_numbers', editIcId), {code: cleanCode, type}) : 
+        await addDoc(collection(db, 'ic_numbers'), {code: cleanCode, type});
+    
     closeModal('icModal');
+    showToast("Adatbázis frissítve! ✓");
 };
 
-window.deleteIc = async () => { if (confirm("Törlöd?") && editIcId) await deleteDoc(doc(db, 'ic_numbers', editIcId)); closeModal('icModal'); };
+window.deleteIc = async () => {
+    if (confirm("Biztosan törlöd?")) {
+        haptic('error');
+        if (editIcId) await deleteDoc(doc(db, 'ic_numbers', editIcId));
+        closeModal('icModal');
+    }
+};
 
-window.closeModal = (id) => document.getElementById(id).classList.remove('open');
+window.closeModal = (id) => {
+    haptic('light');
+    document.getElementById(id).classList.remove('open');
+};
 
 const showToast = (m) => {
     document.getElementById('toastMsg').textContent = m;
     new bootstrap.Toast(document.getElementById('liveToast')).show();
 };
-
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
