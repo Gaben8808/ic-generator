@@ -1,13 +1,19 @@
 {
-  "name": "IC Generátor",
+  "name": "AddIC Generator",
   "short_name": "IC Gen",
-  "start_url": "/index.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#f0f3f8",
-  "theme_color": "#1a4b8c",
+  "theme_color": "#ff5f00",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/9355/9355673.png",
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
