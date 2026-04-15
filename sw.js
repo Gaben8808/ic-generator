@@ -2,8 +2,8 @@ const CACHE_NAME = 'addic-v2';
 const ASSETS = [
   './',
   './index.html',
-  './style.css',  // Ez fontos!
-  './app.js',     // Ez is!
+  './style.css',  
+  './app.js',     
   './manifest.json',
   'https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
@@ -31,4 +31,11 @@ self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((res) => res || fetch(e.request))
   );
+});
+
+// === ÚJ: Engedélyezzük az azonnali frissítést a gombnyomásra ===
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
