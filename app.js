@@ -199,6 +199,46 @@ const showToast = (m) => {
     }
 };
 
+// === PWA FRISSÍTÉS DETEKTOR ÉS BANNER ===
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    let refreshing = false;
+
+    // Ha az új verzió átveszi az irányítást, frissítsük az oldalt
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+            window.location.reload();
+            refreshing = true;
+        }
+    });
+
+    navigator.serviceWorker.register('sw.js').then(reg => {
+        reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+                // Ha sikeresen letöltött egy új verziót, és van már egy régi aktív
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    showUpdateBanner(newWorker);
+                }
+            });
+        });
+    }).catch(err => console.error("SW hiba:", err));
+}
+
+// A vizuális "Frissítés" banner létrehozása
+function showUpdateBanner(worker) {
+    haptic('success');
+    const banner = document.createElement('div');
+    banner.className = 'update-banner';
+    banner.innerHTML = `
+        <span>Új verzió elérhető!</span>
+        <button id="reloadAppBtn">Frissítés</button>
+    `;
+    document.body.appendChild(banner);
+
+    document.getElementById('reloadAppBtn').addEventListener('click', () => {
+        haptic('light');
+        banner.innerHTML = 'Frissítés folyamatban...';
+        // Szólunk a Service Workernek, hogy aktiválja az új kódot
+        worker.postMessage({ type: 'SKIP_WAITING' });
+    });
 }
