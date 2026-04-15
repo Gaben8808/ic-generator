@@ -172,4 +172,43 @@ body {
     border-top: 1px solid var(--bord);
     padding-bottom: calc(20px + env(safe-area-inset-bottom));
 }
+/* ==========================================================================
+   SÖTÉT MÓD SZÖVEG OLVASHATÓSÁG JAVÍTÁS (Bootstrap felülírások)
+   ========================================================================== */
+body.dark-mode .text-dark { 
+    color: #ffffff !important; 
+}
 
+body.dark-mode .text-muted { 
+    color: #a0a0a0 !important; 
+}
+
+body.dark-mode .form-control, 
+body.dark-mode .form-select {
+    color: #ffffff !important;
+    background-color: var(--sur2) !important;
+    border-color: var(--bord) !important;
+}
+
+body.dark-mode .form-control::placeholder { 
+    color: #888888 !important; 
+}
+
+body.dark-mode h4, 
+body.dark-mode h5, 
+body.dark-mode h6 { 
+    color: #ffffff !important; 
+}
+
+body.dark-mode .list-group-item { 
+    color: #ffffff !important; 
+}
+
+/* Kiemelés doboz szövege sötétben */
+body.dark-mode .info-block.highlight p.text-muted {
+    color: #d1d5db !important;
+}
+
+body.dark-mode .navbar-title {
+    color: #ffffff !important;
+}
