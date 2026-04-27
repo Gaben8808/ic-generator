@@ -85,6 +85,7 @@ const updateGenSelect = () => {
 };
 
 // === GENERÁTOR ===
+// === GENERÁTOR ===
 window.generateData = () => {
     const code = document.getElementById('genSelect').value;
     const amountStr = document.getElementById('genAmount').value;
@@ -97,20 +98,37 @@ window.generateData = () => {
     haptic('success');
     const cleanIC = code.replace(/[^a-zA-Z0-9]/g, '');
     const paddedAmount = amountStr.padStart(7, '0');
-    const r11 = Math.floor(Math.random() * 9e10 + 1e10).toString();
+    
+    // A 2. QR kód random kiegészítése maradt
     const r10 = Math.floor(Math.random() * 9e9 + 1e9).toString();
+
+    // === ÚJ LOGIKA AZ 1. QR KÓDHOZ ===
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    // Formátum felépítése (Pl: a2c0131370200@20260427@092355)
+    // cleanIC.toLowerCase() a kisbetűs formátumhoz
+    const qr1Text = `${cleanIC.toLowerCase()}@${year}${month}${day}@${hours}${minutes}${seconds}`;
 
     document.getElementById('q1-large').innerHTML = '';
     document.getElementById('q2-large').innerHTML = '';
 
-    new QRCode(document.getElementById("q1-large"), { text: r11, width: 250, height: 250, correctLevel: QRCode.CorrectLevel.H });
+    // QR kódok legenerálása
+    new QRCode(document.getElementById("q1-large"), { text: qr1Text, width: 250, height: 250, correctLevel: QRCode.CorrectLevel.H });
     new QRCode(document.getElementById("q2-large"), { text: `${cleanIC}${paddedAmount}${r10}`, width: 250, height: 250, correctLevel: QRCode.CorrectLevel.H });
     
-    document.getElementById('q1-text').innerHTML = `<strong style="color:#000">${r11}</strong>`;
+    // Szövegek beállítása a QR kódok alá
+    document.getElementById('q1-text').innerHTML = `<strong style="color:#000">${qr1Text}</strong>`;
     document.getElementById('q2-text').innerHTML = `<strong style="color:#000">${formatIC(cleanIC)}${paddedAmount}${r10}</strong>`;
 
     document.getElementById('qrFullscreen').classList.remove('hidden');
 };
+
 
 window.clearGenerator = () => {
     haptic('light');
